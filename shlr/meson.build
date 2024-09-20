@@ -4,10 +4,11 @@ if capstone_dep.found() and get_option('use_sys_capstone')
   message('Use system-provided capstone library')
 else
   if get_option('capstone_in_builddir')
-    capstone_path = join_paths(meson.current_build_dir(), 'capstone')
+    capstone_parent = meson.current_build_dir()
   else
-    capstone_path = 'capstone'
+    capstone_parent = meson.current_source_dir()
   endif
+  capstone_path = join_paths(capstone_parent, 'capstone')
 
   capstone_version = get_option('use_capstone_version')
   message('Use bundled capstone: ' + capstone_version)
@@ -54,7 +55,7 @@ else
     capstone_git_user = 'capstone-engine'
 
     message('Cloning capstone ' + CS_BRA + ' branch, commit ' + CS_TIP + ', into ' + capstone_path)
-    git_cmd = 'clone -b @0@ https://github.com/@1@/capstone.git @2@'.format(CS_BRA, capstone_git_user, capstone_path)
+    git_cmd = '-C @0@ clone -b @1@ https://github.com/@2@/capstone.git @3@'.format(capstone_parent, CS_BRA, capstone_git_user, capstone_path)
     clone_cmd = run_command(git_exe, git_cmd.split())
     if clone_cmd.returncode() != 0
       error('Cannot execute git clone command')
